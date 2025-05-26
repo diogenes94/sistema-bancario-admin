@@ -45,10 +45,7 @@ public class ClienteDao {
         try (Connection con = MySQL.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Cliente cliente = new Cliente();
-                cliente.setIdCliente(rs.getLong("id_cliente"));
-                cliente.setNome(rs.getString("nome"));
-                cliente.setDataNascimento(rs.getDate("data_nascimento").toLocalDate());
+                var cliente = construirClienteSql(rs);
                 clientes.add(cliente);
             }
         } catch (SQLException ex) {
@@ -57,13 +54,41 @@ public class ClienteDao {
         return clientes;
     }
 
+    public Cliente buscarClientePorId(Long idCliente) {
+        String sql = "SELECT * FROM clientes WHERE id_cliente = ?";
+        try (Connection con = MySQL.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, idCliente);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return construirClienteSql(rs);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ClienteDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public Cliente construirClienteSql(ResultSet rs) throws SQLException {
+        Cliente cliente = new Cliente();
+        cliente.setIdCliente(rs.getLong("id_cliente"));
+        cliente.setNome(rs.getString("nome"));
+        cliente.setDataNascimento(rs.getDate("data_nascimento").toLocalDate());
+        cliente.setEmail(rs.getString("email"));
+        cliente.setTelefone(rs.getString("telefone"));
+        cliente.setSenhaHash(rs.getString("senha_hash"));
+        return cliente;
+    }
+
     public static void main(String[] args) {
-        Cliente cliente = new Cliente(null, "Matheus Torremo", "21324623", LocalDate.now(),
-                "torremo@unincor.edu.br", "45646124897", "389102312749128903dasda");
+//        Cliente cliente = new Cliente(null, "Matheus Torremo", "21324623", LocalDate.now(),
+//                "torremo@unincor.edu.br", "45646124897", "389102312749128903dasda");
         ClienteDao clienteDao = new ClienteDao();
-        var clientes = clienteDao.buscarTodosClientes();
-        clientes.forEach(c -> System.out.println("Id: " + c.getIdCliente()
-                + " Nome: " + c.getNome()));
+//        var clientes = clienteDao.buscarTodosClientes();
+//        clientes.forEach(c -> System.out.println("Id: " + c.getIdCliente()
+//                + " Nome: " + c.getNome()));
+        var c = clienteDao.buscarClientePorId(1l);
+        System.out.println("Id: " + c.getIdCliente() 
+                + " Nome: " + c.getNome());
     }
 
 }
