@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class AgenciaDao {
     
     public void inserirAgencia(Agencia agencia) {
-        String sql = "INSERT INTO AGENCIA(codigo_agencia, cidade, uf, "
+        String sql = "INSERT INTO AGENCIAS(codigo_agencia, cidade, uf, "
                 + "logradouro, numero, cep) VALUES (?, ?, ?, ?, ?, ?)";
         try(Connection con = MySQL.connect(); 
                 PreparedStatement ps = con.prepareStatement(sql)) {
@@ -35,7 +35,7 @@ public class AgenciaDao {
             ps.execute();
         } catch (SQLException ex) {
             Logger.getLogger(AgenciaDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
     
     public List<Agencia> listarTodasAgencias() {
@@ -68,6 +68,21 @@ public class AgenciaDao {
         return null;
     }
     
+    public Agencia buscarAgenciaPorCodigoAgencia(String codigoAgencia) {
+        String sql = "SELECT * FROM Agencias where codigo_agencia = ?";
+        try(Connection con = MySQL.connect(); 
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, codigoAgencia);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                return construirAgenciaSql(rs);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AgenciaDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
     public Agencia construirAgenciaSql(ResultSet rs) throws SQLException {
         Agencia agencia = new Agencia();
         agencia.setIdAgencia(rs.getLong("id_agencia"));
@@ -80,4 +95,25 @@ public class AgenciaDao {
         return agencia;
     }
     
+    
+    
+    public static void main(String[] args) {
+        AgenciaDao agenciaDao = new AgenciaDao();
+        
+        // Teste de inserção
+        System.out.println("Teste de inserir agencia: ");
+        Agencia agencia = new Agencia(null, "1235", "Três Corações", 
+                "MG", "Avenida Rei Pelé", "589", "37410000");
+        agenciaDao.inserirAgencia(agencia);
+        
+        // Teste loop buscar todas agencias
+        System.out.println("Teste loop buscar todas agencias");
+        List<Agencia> agencias =  agenciaDao.listarTodasAgencias();
+        agencias.forEach(ag -> System.out.println("Codigo: " + ag.getCodigoAgencia()));
+        
+        System.out.println("Teste buscar agencias por id");
+        Agencia ag = agenciaDao.buscarAgenciaPorId(1l);
+        System.out.println("Codigo: " + ag.getCodigoAgencia());
+        
+    }
 }
