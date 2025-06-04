@@ -7,8 +7,6 @@ package com.unincor.sistema.bancario.admin.view;
 import com.unincor.sistema.bancario.admin.exceptions.CadastroException;
 import com.unincor.sistema.bancario.admin.model.domain.Agencia;
 import com.unincor.sistema.bancario.admin.model.services.AgenciaService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 
@@ -28,6 +26,13 @@ public class TelaCadastroAgencia extends javax.swing.JDialog {
     public TelaCadastroAgencia(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setLocationRelativeTo(parent);
+    }
+    
+    public TelaCadastroAgencia(java.awt.Dialog parent, boolean modal) {
+        super(parent, modal);
+        initComponents();
+        setLocationRelativeTo(parent);
     }
 
     /**
@@ -139,6 +144,7 @@ public class TelaCadastroAgencia extends javax.swing.JDialog {
         try {
             Agencia agencia = construirAgenciaView();
             agenciaService.salvarAgencia(agencia);
+            JOptionPane.showMessageDialog(this, "Salvo com sucesso!");
         } catch (CadastroException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
